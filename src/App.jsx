@@ -1,12 +1,13 @@
 // src/App.jsx
 import React from "react";
 import Map from "./components/Map";
+import { GroupProvider } from "./contexts/GroupContext";
 
 function App() {
   return (
-    <div>
+    <GroupProvider>
       <Map />
-    </div>
+    </GroupProvider>
   );
 }
 

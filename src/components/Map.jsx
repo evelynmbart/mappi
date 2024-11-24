@@ -1,12 +1,19 @@
 // src/components/Map.jsx
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { GoogleMap, LoadScript } from "@react-google-maps/api";
 import MarkerGroup from "./MarkerGroup";
+import { GroupContext } from "../contexts/GroupContext";
+import GroupManager from "./GroupManager";
+import SearchBar from "./SearchBar";
 
 const Map = () => {
-  // State to manage visibility
-  const [showGyms, setShowGyms] = useState(true);
-  const [showGroceries, setShowGroceries] = useState(true);
+  const { groups } = useContext(GroupContext);
+
+  const [searchResults, setSearchResults] = useState([]);
+
+  const handlePlacesChanged = places => {
+    setSearchResults(places);
+  };
 
   const center = {
     lat: 40.7128, // Latitude of NYC
@@ -41,23 +48,8 @@ const Map = () => {
             padding: "10px"
           }}
         >
-          <label>
-            <input
-              type="checkbox"
-              checked={showGyms}
-              onChange={() => setShowGyms(!showGyms)}
-            />
-            Show Gyms
-          </label>
-          <br />
-          <label>
-            <input
-              type="checkbox"
-              checked={showGroceries}
-              onChange={() => setShowGroceries(!showGroceries)}
-            />
-            Show Groceries
-          </label>
+          <GroupManager />
+          <SearchBar onPlacesChanged={handlePlacesChanged} />
         </div>
 
         {/* Map */}
@@ -67,12 +59,12 @@ const Map = () => {
           zoom={12}
           options={options}
         >
-          {showGyms && <MarkerGroup type="gym" visible={showGyms} />}
-          {showGroceries &&
-            <MarkerGroup
-              type="grocery_or_supermarket"
-              visible={showGroceries}
-            />}
+          {searchResults.map(result => (
+            <Marker key={result.place_id} position={result.geometry.location} />
+          ))}
+          {groups.map(group => group.visible && (
+            <MarkerGroup key={group.id} group={group} />
+          ))}
         </GoogleMap>
       </div>
     </LoadScript>
