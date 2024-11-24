@@ -1,31 +1,43 @@
-// src/components/SearchBar.jsx
-import React, { useState, useContext } from "react";
 import { StandaloneSearchBox } from "@react-google-maps/api";
+import { useContext, useState } from "react";
 import { GroupContext } from "../contexts/GroupContext";
+import { Place } from "../types";
 
 const SearchBar = () => {
-  const [searchBox, setSearchBox] = useState(null);
-  const [places, setPlaces] = useState([]);
+  const [searchBox, setSearchBox] =
+    useState<google.maps.places.SearchBox | null>(null);
+  const [places, setPlaces] = useState<Place[]>([]);
   const { groups, setGroups } = useContext(GroupContext);
   const [selectedGroupId, setSelectedGroupId] = useState("");
 
-  const onLoad = ref => {
+  const onLoad = (ref: google.maps.places.SearchBox) => {
     setSearchBox(ref);
   };
 
   const handlePlacesChanged = () => {
+    if (!searchBox) return;
     const placesResult = searchBox.getPlaces();
-    setPlaces(placesResult);
+    console.log(placesResult);
+    /**
+     * - formatted_address
+     * - geometry
+     * - icon
+     * - icon_background_color
+     * - name
+     * - place_id
+     * - rating
+     * - user_ratings_total
+     */
+    setPlaces(placesResult as unknown as Place[]);
   };
 
-  const handleAddPlace = place => {
+  const handleAddPlace = (place: Place) => {
     if (!selectedGroupId) return;
     setGroups(
-      groups.map(
-        group =>
-          group.id === selectedGroupId
-            ? { ...group, places: [...group.places, place] }
-            : group
+      groups.map((group) =>
+        group.id === selectedGroupId
+          ? { ...group, places: [...group.places, place] }
+          : group
       )
     );
   };
@@ -33,11 +45,10 @@ const SearchBar = () => {
   const handleAddAllPlaces = () => {
     if (!selectedGroupId) return;
     setGroups(
-      groups.map(
-        group =>
-          group.id === selectedGroupId
-            ? { ...group, places: [...group.places, ...places] }
-            : group
+      groups.map((group) =>
+        group.id === selectedGroupId
+          ? { ...group, places: [...group.places, ...places] }
+          : group
       )
     );
   };
@@ -65,31 +76,32 @@ const SearchBar = () => {
         />
       </StandaloneSearchBox>
 
-      {places.length > 0 &&
+      {places.length > 0 && (
         <div>
           <select
             value={selectedGroupId}
-            onChange={e => setSelectedGroupId(e.target.value)}
+            onChange={(e) => setSelectedGroupId(e.target.value)}
           >
             <option value="">Select Group</option>
-            {groups.map(group =>
+            {groups.map((group) => (
               <option key={group.id} value={group.id}>
                 {group.name}
               </option>
-            )}
+            ))}
           </select>
           <button onClick={handleAddAllPlaces}>Add All to Group</button>
           <ul>
-            {places.map(place =>
+            {places.map((place) => (
               <li key={place.place_id}>
                 {place.name}
                 <button onClick={() => handleAddPlace(place)}>
                   Add to Group
                 </button>
               </li>
-            )}
+            ))}
           </ul>
-        </div>}
+        </div>
+      )}
     </div>
   );
 };

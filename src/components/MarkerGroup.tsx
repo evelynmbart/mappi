@@ -1,10 +1,14 @@
-// src/components/MarkerGroup.jsx
-import React, { useState } from "react";
 import { Marker } from "@react-google-maps/api";
+import { useState } from "react";
+import { Group } from "../types";
 import PlaceDetails from "./PlaceDetails";
 
-const MarkerGroup = ({ group }) => {
-  const [activePlaceId, setActivePlaceId] = useState(null);
+interface Props {
+  group: Group;
+}
+
+const MarkerGroup = ({ group }: Props) => {
+  const [activePlaceId, setActivePlaceId] = useState<string | null>(null);
 
   return (
     <>
@@ -17,7 +21,7 @@ const MarkerGroup = ({ group }) => {
             scale: 8,
             fillColor: group.color,
             fillOpacity: 1,
-            strokeWeight: 1,
+            strokeWeight: 1
           }}
           title={place.name}
           onMouseOver={() => setActivePlaceId(place.place_id)}

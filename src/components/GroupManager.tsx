@@ -1,8 +1,7 @@
-// src/components/GroupManager.jsx
-import React, { useContext, useState } from "react";
-import { GroupContext } from "../contexts/GroupContext";
-import { v4 as uuidv4 } from "uuid";
+import { useContext, useState } from "react";
 import { HexColorPicker } from "react-colorful";
+import { v4 as uuidv4 } from "uuid";
+import { GroupContext } from "../contexts/GroupContext";
 
 const GroupManager = () => {
   const { groups, setGroups } = useContext(GroupContext);
@@ -22,25 +21,23 @@ const GroupManager = () => {
     setNewGroupName("");
   };
 
-  const toggleGroupVisibility = groupId => {
+  const toggleGroupVisibility = (groupId: string) => {
     setGroups(
-      groups.map(
-        group =>
-          group.id === groupId ? { ...group, visible: !group.visible } : group
+      groups.map((group) =>
+        group.id === groupId ? { ...group, visible: !group.visible } : group
       )
     );
   };
 
-  const removePlaceFromGroup = (groupId, placeId) => {
+  const removePlaceFromGroup = (groupId: string, placeId: string) => {
     setGroups(
-      groups.map(
-        group =>
-          group.id === groupId
-            ? {
-                ...group,
-                places: group.places.filter(place => place.place_id !== placeId)
-              }
-            : group
+      groups.map((group) =>
+        group.id === groupId
+          ? {
+              ...group,
+              places: group.places.filter((place) => place.place_id !== placeId)
+            }
+          : group
       )
     );
   };
@@ -52,14 +49,14 @@ const GroupManager = () => {
         type="text"
         placeholder="Group Name"
         value={newGroupName}
-        onChange={e => setNewGroupName(e.target.value)}
+        onChange={(e) => setNewGroupName(e.target.value)}
       />
       <HexColorPicker color={newGroupColor} onChange={setNewGroupColor} />
       <button onClick={createGroup}>Create Group</button>
 
       <h3>Existing Groups</h3>
       <ul>
-        {groups.map(group =>
+        {groups.map((group) => (
           <li key={group.id}>
             <input
               type="checkbox"
@@ -78,20 +75,21 @@ const GroupManager = () => {
 
             {/* List places in the group */}
             <ul>
-              {group.places.map(place =>
+              {group.places.map((place) => (
                 <li key={place.place_id}>
                   {place.name}
                   <button
                     onClick={() =>
-                      removePlaceFromGroup(group.id, place.place_id)}
+                      removePlaceFromGroup(group.id, place.place_id)
+                    }
                   >
                     Remove
                   </button>
                 </li>
-              )}
+              ))}
             </ul>
           </li>
-        )}
+        ))}
       </ul>
     </div>
   );
