@@ -21,27 +21,14 @@ const Map = () => {
   return (
     <LoadScript
       googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}
-      libraries={["places"]}
+      libraries={LIBRARIES}
     >
       <div
         style={{
           position: "relative"
         }}
       >
-        {/* Controls */}
-        <div
-          style={{
-            position: "absolute",
-            zIndex: 1,
-            background: "white",
-            color: "black",
-            padding: "10px",
-            width: "400px",
-            height: "100vh"
-          }}
-        >
-          <Controls />
-        </div>
+        <Controls />
 
         {/* Map */}
         <GoogleMap

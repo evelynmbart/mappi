@@ -1,33 +1,8 @@
-import { useContext, useState } from "react";
-import { HexColorPicker } from "react-colorful";
-import { v4 as uuidv4 } from "uuid";
+import { useContext } from "react";
 import { GroupContext } from "../contexts/GroupContext";
 
 const GroupManager = () => {
   const { groups, setGroups } = useContext(GroupContext);
-  const [newGroupName, setNewGroupName] = useState("");
-  const [newGroupColor, setNewGroupColor] = useState("#aabbcc");
-
-  const createGroup = () => {
-    if (newGroupName.trim() === "") return;
-    const newGroup = {
-      id: uuidv4(),
-      name: newGroupName,
-      color: newGroupColor,
-      places: [],
-      visible: true
-    };
-    setGroups([...groups, newGroup]);
-    setNewGroupName("");
-  };
-
-  const toggleGroupVisibility = (groupId: string) => {
-    setGroups(
-      groups.map((group) =>
-        group.id === groupId ? { ...group, visible: !group.visible } : group
-      )
-    );
-  };
 
   const removePlaceFromGroup = (groupId: string, placeId: string) => {
     setGroups(
@@ -44,25 +19,10 @@ const GroupManager = () => {
 
   return (
     <div>
-      <h3>Create New Group</h3>
-      <input
-        type="text"
-        placeholder="Group Name"
-        value={newGroupName}
-        onChange={(e) => setNewGroupName(e.target.value)}
-      />
-      <HexColorPicker color={newGroupColor} onChange={setNewGroupColor} />
-      <button onClick={createGroup}>Create Group</button>
-
       <h3>Existing Groups</h3>
       <ul>
         {groups.map((group) => (
           <li key={group.id}>
-            <input
-              type="checkbox"
-              checked={group.visible}
-              onChange={() => toggleGroupVisibility(group.id)}
-            />
             <span
               style={{
                 color: group.color,
