@@ -6,7 +6,7 @@ import styled from "styled-components";
 import { v4 as uuidv4 } from "uuid";
 import { GroupContext } from "../contexts/GroupContext";
 import GroupManager from "./GroupManager";
-import SearchBar from "./SearchBar";
+import { Search } from "./Search";
 
 enum Tab {
   Search = "search",
@@ -88,7 +88,7 @@ export default function Controls() {
         ))}
       </Sidebar>
       <Content>
-        {tab === Tab.Search && <SearchBar />}
+        {tab === Tab.Search && <Search />}
         {tab === Tab.CreateGroup && (
           <div>
             <h3>Create New Group</h3>
@@ -131,7 +131,8 @@ const Sidebar = styled.div`
   flex-direction: column;
   align-items: center;
   gap: 20px;
-  padding: 20px 0;
+  padding: 20px 4px;
+  z-index: 2;
 `;
 
 const SidebarButton = styled.div`
@@ -155,7 +156,6 @@ const Divider = styled.div`
 
 const Content = styled.div`
   width: 400px;
-  padding: 20px;
 `;
 
 const CreateGroupContainer = styled.div`
