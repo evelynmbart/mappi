@@ -1,31 +1,22 @@
-import { StandaloneSearchBox } from "@react-google-maps/api";
 import { useContext, useRef, useState } from "react";
 import { FiSearch, FiX } from "react-icons/fi";
 import styled from "styled-components";
+import { DEFAULT_LOCATION, DEFAULT_RADIUS_METERS } from "../constants/defaults";
 import { GroupContext } from "../contexts/GroupContext";
 import { Place } from "../types";
 import { SearchResult } from "./SearchResult";
 
-export function Search() {
-  const [searchBox, setSearchBox] =
-    useState<google.maps.places.SearchBox | null>(null);
-  const [places, setPlaces] = useState<Place[]>([]);
-  const { groups, setGroups } = useContext(GroupContext);
+interface Props {
+  circle: google.maps.Circle;
+}
+
+export function Search({ circle }: Props) {
+  const { groups, setGroups, searchResults, setSearchResults } =
+    useContext(GroupContext);
   const [selectedGroupId, setSelectedGroupId] = useState("");
   const [isScrolled, setIsScrolled] = useState(false);
   const resultsRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-
-  const onLoad = (ref: google.maps.places.SearchBox) => {
-    setSearchBox(ref);
-  };
-
-  const handlePlacesChanged = () => {
-    if (!searchBox) return;
-    const placesResult = searchBox.getPlaces();
-    console.log(placesResult);
-    setPlaces(placesResult as unknown as Place[]);
-  };
 
   const handleAddPlace = (place: Place) => {
     if (!selectedGroupId) return;
@@ -43,7 +34,7 @@ export function Search() {
     setGroups(
       groups.map((group) =>
         group.id === selectedGroupId
-          ? { ...group, places: [...group.places, ...places] }
+          ? { ...group, places: [...group.places, ...searchResults] }
           : group
       )
     );
@@ -57,39 +48,55 @@ export function Search() {
   const clearSearch = () => {
     if (inputRef.current) {
       inputRef.current.value = "";
-      setPlaces([]);
+      setSearchResults([]);
+    }
+  };
+
+  const handleSearch = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setSearchResults([]);
+    try {
+      const service = new window.google.maps.places.PlacesService(
+        document.createElement("div")
+      );
+
+      const request: google.maps.places.TextSearchRequest = {
+        location: circle?.getCenter() ?? DEFAULT_LOCATION,
+        radius: circle?.getRadius() ?? DEFAULT_RADIUS_METERS,
+        query: inputRef.current?.value
+      };
+
+      service.textSearch(request, (results, status) => {
+        if (status === window.google.maps.places.PlacesServiceStatus.OK) {
+          setSearchResults(results as unknown as Place[]);
+        } else {
+          console.error("PlacesServiceStatus:", status);
+        }
+      });
+    } catch (error) {
+      console.error("Geocoding failed:", error);
     }
   };
 
   return (
     <Container>
       <TopSection hasBoxShadow={isScrolled}>
-        <StandaloneSearchBox
-          onLoad={onLoad}
-          onPlacesChanged={handlePlacesChanged}
-          bounds={
-            new google.maps.LatLngBounds(
-              { lat: 40.477399, lng: -74.25909 }, // SW corner of NYC
-              { lat: 40.917577, lng: -73.700272 } // NE corner of NYC
-            )
-          }
-        >
-          <InputWrapper>
-            <Input
-              ref={inputRef}
-              type="text"
-              placeholder="Search for places..."
-            />
-            <SearchButton onClick={handlePlacesChanged}>
-              <FiSearch size={18} />
-            </SearchButton>
-            <ClearButton onClick={clearSearch}>
-              <FiX size={18} />
-            </ClearButton>
-          </InputWrapper>
-        </StandaloneSearchBox>
+        <InputWrapper onSubmit={handleSearch}>
+          <Input
+            ref={inputRef}
+            type="text"
+            placeholder="Search keyword (optional)..."
+          />
 
-        {places.length > 0 && (
+          <SearchButton type="submit">
+            <FiSearch size={18} />
+          </SearchButton>
+          <ClearButton onClick={clearSearch}>
+            <FiX size={18} />
+          </ClearButton>
+        </InputWrapper>
+
+        {searchResults.length > 0 && (
           <Controls>
             <SelectWrapper>
               <Select
@@ -109,9 +116,9 @@ export function Search() {
         )}
       </TopSection>
 
-      {places.length > 0 && (
+      {searchResults.length > 0 && (
         <SearchResults ref={resultsRef} onScroll={handleScroll}>
-          {places.map((place) => (
+          {searchResults.map((place) => (
             <SearchResult
               key={place.place_id}
               place={place}
@@ -150,7 +157,7 @@ const Controls = styled.div`
   gap: 8px;
 `;
 
-const InputWrapper = styled.div`
+const InputWrapper = styled.form`
   position: relative;
   display: flex;
   align-items: center;

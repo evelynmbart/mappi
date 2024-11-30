@@ -16,7 +16,11 @@ enum Tab {
 
 const DEFAULT_GROUP_COLOR = "#5aa1e8";
 
-export default function Controls() {
+interface Props {
+  circle: google.maps.Circle;
+}
+
+export default function Controls({ circle }: Props) {
   const { groups, setGroups } = useContext(GroupContext);
 
   const [tab, setTab] = useState<Tab>(Tab.Search);
@@ -24,8 +28,6 @@ export default function Controls() {
 
   const [newGroupName, setNewGroupName] = useState("");
   const [newGroupColor, setNewGroupColor] = useState(DEFAULT_GROUP_COLOR);
-
-  console.log(groups);
 
   const createGroup = () => {
     if (newGroupName.trim() === "") return;
@@ -88,7 +90,7 @@ export default function Controls() {
         ))}
       </Sidebar>
       <Content>
-        {tab === Tab.Search && <Search />}
+        {tab === Tab.Search && <Search circle={circle} />}
         {tab === Tab.CreateGroup && (
           <div>
             <h3>Create New Group</h3>

@@ -5,23 +5,30 @@ import {
   SetStateAction,
   useState
 } from "react";
-import { Group } from "../types";
+import { Group, Place } from "../types";
 
 interface GroupContextType {
   groups: Group[];
   setGroups: Dispatch<SetStateAction<Group[]>>;
+  searchResults: Place[];
+  setSearchResults: Dispatch<SetStateAction<Place[]>>;
 }
 
 export const GroupContext = createContext<GroupContextType>({
   groups: [],
-  setGroups: () => {}
+  setGroups: () => {},
+  searchResults: [],
+  setSearchResults: () => {}
 });
 
 export const GroupProvider = ({ children }: { children: ReactNode }) => {
   const [groups, setGroups] = useState<Group[]>([]);
+  const [searchResults, setSearchResults] = useState<Place[]>([]);
 
   return (
-    <GroupContext.Provider value={{ groups, setGroups }}>
+    <GroupContext.Provider
+      value={{ groups, setGroups, searchResults, setSearchResults }}
+    >
       {children}
     </GroupContext.Provider>
   );
