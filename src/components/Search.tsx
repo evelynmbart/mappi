@@ -3,6 +3,7 @@ import { FiBookmark, FiSearch } from "react-icons/fi";
 import styled from "styled-components";
 import { GroupContext } from "../contexts/GroupContext";
 import { Place, Tab } from "../types";
+import { MadeWithLove } from "./MadeWithLove";
 import { SearchInput } from "./SearchInput";
 import { SearchResult } from "./SearchResult";
 
@@ -94,6 +95,7 @@ export function Search({ circle }: Props) {
             <br />
             Toggle pins, switch groups, and manage places from the sidebar
           </Description>
+          <MadeWithLove />
         </EmptyState>
       )}
 
