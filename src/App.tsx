@@ -10,7 +10,7 @@ function App() {
 
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < 1024);
+      setIsMobile(window.innerWidth < 680);
     };
 
     checkMobile();
@@ -22,11 +22,11 @@ function App() {
     return (
       <MobileBlocker>
         <Icon>📱</Icon>
-        <Title>Please use a larger screen :(</Title>
+        <Title>Oops! This screen's a bit cozy 🤗</Title>
         <Message>
-          Sorry about that. Mappi has lots of tools and controls. It works best
-          on a desktop screen. Please visit on a device with a larger screen for
-          the best experience.
+          Mappi works best with a bit more screen real estate to show off all
+          its features. For the full experience, try visiting from a tablet or
+          computer.
         </Message>
         <BypassButton onClick={() => setBypassMobile(true)}>
           I don&apos;t care, let me in anyway.
