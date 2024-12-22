@@ -1,7 +1,8 @@
 import { useContext, useRef, useState } from "react";
+import { FiBookmark, FiSearch } from "react-icons/fi";
 import styled from "styled-components";
 import { GroupContext } from "../contexts/GroupContext";
-import { Place } from "../types";
+import { Place, Tab } from "../types";
 import { SearchInput } from "./SearchInput";
 import { SearchResult } from "./SearchResult";
 
@@ -10,7 +11,7 @@ interface Props {
 }
 
 export function Search({ circle }: Props) {
-  const { groups, setGroups, searchResults } = useContext(GroupContext);
+  const { groups, setGroups, searchResults, setTab } = useContext(GroupContext);
   const [selectedGroupId, setSelectedGroupId] = useState("");
   const [isScrolled, setIsScrolled] = useState(false);
   const resultsRef = useRef<HTMLDivElement>(null);
@@ -64,6 +65,37 @@ export function Search({ circle }: Props) {
           </Controls>
         )}
       </TopSection>
+
+      {searchResults.length === 0 && (
+        <EmptyState>
+          <IconContainer>
+            <FiSearch size={48} color="#1a73e8" />
+            <FiBookmark size={48} color="#1a73e8" />
+          </IconContainer>
+          <Title>Find Your Perfect Neighborhood</Title>
+          <Description>
+            Search for places like "dog parks" or "gyms"
+            <br />
+            <br />
+            Move the <span style={{ color: "red" }}>red circle</span> to set
+            your search area
+            <br />
+            <br />
+            Group your favorite spots to map out potential neighborhoods.{" "}
+            <a
+              style={{ color: "#1a73e8", cursor: "pointer" }}
+              onClick={() => {
+                setTab(Tab.ManageGroups);
+              }}
+            >
+              Try creating a group
+            </a>
+            <br />
+            <br />
+            Toggle pins, switch groups, and manage places from the sidebar
+          </Description>
+        </EmptyState>
+      )}
 
       {searchResults.length > 0 && (
         <SearchResults ref={resultsRef} onScroll={handleScroll}>
@@ -169,4 +201,34 @@ const AddButton = styled.button`
   &:active {
     background: #e8f1fc;
   }
+`;
+
+const EmptyState = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 32px;
+  text-align: left;
+  color: #666;
+`;
+
+const IconContainer = styled.div`
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+`;
+
+const Title = styled.h2`
+  color: #333;
+  font-size: 1.3em;
+  margin-bottom: 16px;
+  font-weight: 500;
+`;
+
+const Description = styled.p`
+  font-size: 0.9em;
+  line-height: 1.6;
+  max-width: 400px;
 `;
