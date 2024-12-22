@@ -1,47 +1,23 @@
-import { useContext, useState } from "react";
-import { HexColorPicker } from "react-colorful";
-import { FiPlus, FiSearch } from "react-icons/fi";
+import { useContext } from "react";
+import { FiBookmark, FiSearch } from "react-icons/fi";
 import { MdCheckBox, MdCheckBoxOutlineBlank } from "react-icons/md";
 import styled from "styled-components";
-import { v4 as uuidv4 } from "uuid";
 import { GroupContext } from "../contexts/GroupContext";
 import GroupManager from "./GroupManager";
 import { Search } from "./Search";
 
 enum Tab {
   Search = "search",
-  CreateGroup = "create-group",
+  ManageGroups = "manage-groups",
   Group = "group"
 }
-
-const DEFAULT_GROUP_COLOR = "#5aa1e8";
 
 interface Props {
   circle: google.maps.Circle;
 }
 
 export default function Controls({ circle }: Props) {
-  const { groups, setGroups } = useContext(GroupContext);
-
-  const [tab, setTab] = useState<Tab>(Tab.Search);
-  const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
-
-  const [newGroupName, setNewGroupName] = useState("");
-  const [newGroupColor, setNewGroupColor] = useState(DEFAULT_GROUP_COLOR);
-
-  const createGroup = () => {
-    if (newGroupName.trim() === "") return;
-    const newGroup = {
-      id: uuidv4(),
-      name: newGroupName,
-      color: newGroupColor,
-      places: [],
-      visible: true
-    };
-    setGroups([...groups, newGroup]);
-    setNewGroupName("");
-    setNewGroupColor(DEFAULT_GROUP_COLOR);
-  };
+  const { groups, setGroups, tab, setTab } = useContext(GroupContext);
 
   const toggleGroupVisibility = (groupId: string) => {
     setGroups(
@@ -60,16 +36,15 @@ export default function Controls({ circle }: Props) {
         </SidebarButton>
         <Divider />
 
-        <SidebarButton onClick={() => setTab(Tab.CreateGroup)}>
-          <FiPlus size={24} />
-          Add group
+        <SidebarButton onClick={() => setTab(Tab.ManageGroups)}>
+          <FiBookmark size={24} />
+          Groups
         </SidebarButton>
         {groups.map((group) => (
           <SidebarButton
             key={group.id}
             onClick={() => {
               setTab(Tab.Group);
-              setSelectedGroupId(group.id);
             }}
             style={{ color: group.color }}
           >
@@ -91,20 +66,8 @@ export default function Controls({ circle }: Props) {
       </Sidebar>
       <Content>
         {tab === Tab.Search && <Search circle={circle} />}
-        {tab === Tab.CreateGroup && (
-          <div>
-            <h3>Create New Group</h3>
-            <input
-              type="text"
-              placeholder="Group Name"
-              value={newGroupName}
-              onChange={(e) => setNewGroupName(e.target.value)}
-            />
-            <HexColorPicker color={newGroupColor} onChange={setNewGroupColor} />
-            <button onClick={createGroup}>Create Group</button>
-          </div>
-        )}
-        {tab === Tab.Group && <GroupManager />}
+        {tab === Tab.ManageGroups && <GroupManager searchCircle={circle} />}
+        {tab === Tab.Group && <GroupManager searchCircle={circle} />}
       </Content>
     </Container>
   );

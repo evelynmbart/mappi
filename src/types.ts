@@ -22,3 +22,9 @@ export interface Group {
   visible: boolean;
   places: Place[];
 }
+
+export enum Tab {
+  Search = "search",
+  ManageGroups = "manage-groups",
+  Group = "group"
+}
