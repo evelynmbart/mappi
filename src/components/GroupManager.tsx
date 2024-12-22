@@ -34,6 +34,10 @@ const GroupManager = ({ searchCircle }: Props) => {
   };
 
   const handleRemoveGroup = (groupId: string) => {
+    if (groups.length <= 1) {
+      alert("You must have at least one group");
+      return;
+    }
     setGroups(groups.filter((group) => group.id !== groupId));
   };
 

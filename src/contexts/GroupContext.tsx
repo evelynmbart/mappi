@@ -43,7 +43,15 @@ export const GroupContext = createContext<GroupContextType>({
 });
 
 export const GroupProvider = ({ children }: { children: ReactNode }) => {
-  const [groups, setGroups] = useState<Group[]>([]);
+  const [groups, setGroups] = useState<Group[]>([
+    {
+      id: "default",
+      name: "Default",
+      color: "#1a73e8",
+      places: [],
+      visible: true
+    }
+  ]);
   const [selectedGroupID, setSelectedGroupID] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [searchResults, setSearchResults] = useState<Place[]>([]);

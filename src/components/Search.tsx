@@ -53,7 +53,6 @@ export function Search({ circle }: Props) {
                 value={selectedGroupId}
                 onChange={(e) => setSelectedGroupId(e.target.value)}
               >
-                <option value="">Select Group</option>
                 {groups.map((group) => (
                   <option key={group.id} value={group.id}>
                     {group.name}
