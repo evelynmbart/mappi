@@ -3,6 +3,7 @@ import { FiBookmark, FiSearch } from "react-icons/fi";
 import { MdCheckBox, MdCheckBoxOutlineBlank } from "react-icons/md";
 import styled from "styled-components";
 import { GroupContext } from "../contexts/GroupContext";
+import { GroupDetails } from "./GroupDetails";
 import GroupManager from "./GroupManager";
 import { Search } from "./Search";
 
@@ -17,15 +18,8 @@ interface Props {
 }
 
 export default function Controls({ circle }: Props) {
-  const { groups, setGroups, tab, setTab } = useContext(GroupContext);
-
-  const toggleGroupVisibility = (groupId: string) => {
-    setGroups(
-      groups.map((group) =>
-        group.id === groupId ? { ...group, visible: !group.visible } : group
-      )
-    );
-  };
+  const { groups, goToGroup, toggleGroupVisibility, tab, setTab } =
+    useContext(GroupContext);
 
   return (
     <Container>
@@ -44,7 +38,7 @@ export default function Controls({ circle }: Props) {
           <SidebarButton
             key={group.id}
             onClick={() => {
-              setTab(Tab.Group);
+              goToGroup(group.id);
             }}
             style={{ color: group.color }}
           >
@@ -67,7 +61,7 @@ export default function Controls({ circle }: Props) {
       <Content>
         {tab === Tab.Search && <Search circle={circle} />}
         {tab === Tab.ManageGroups && <GroupManager searchCircle={circle} />}
-        {tab === Tab.Group && <GroupManager searchCircle={circle} />}
+        {tab === Tab.Group && <GroupDetails searchCircle={circle} />}
       </Content>
     </Container>
   );

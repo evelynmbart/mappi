@@ -1,23 +1,35 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { HexColorPicker } from "react-colorful";
 import styled from "styled-components";
+import { GroupContext } from "../contexts/GroupContext";
 
 interface Props {
   onCancel: () => void;
   onSubmit: (name: string, color: string) => void;
+  editingGroupID?: string;
 }
 
-export default function CreateGroup({ onCancel, onSubmit }: Props) {
-  const [newGroupName, setNewGroupName] = useState("");
+export default function CreateGroup({
+  onCancel,
+  onSubmit,
+  editingGroupID
+}: Props) {
+  const { groups } = useContext(GroupContext);
+  const editingGroup = editingGroupID
+    ? groups.find((g) => g.id === editingGroupID)
+    : null;
+
+  const [newGroupName, setNewGroupName] = useState(editingGroup?.name || "");
   const [newGroupColor, setNewGroupColor] = useState(
-    `#${Math.floor(Math.random() * 0x9f + 0x60).toString(16)}${Math.floor(
-      Math.random() * 0x9f + 0x60
-    ).toString(16)}${Math.floor(Math.random() * 0x9f + 0x60).toString(16)}`
+    editingGroup?.color ||
+      `#${Math.floor(Math.random() * 0x9f + 0x60).toString(16)}${Math.floor(
+        Math.random() * 0x9f + 0x60
+      ).toString(16)}${Math.floor(Math.random() * 0x9f + 0x60).toString(16)}`
   ); // Generates random medium-bright color by limiting RGB values between 0x60-0xFF
 
   return (
     <>
-      <ModalTitle>New Group</ModalTitle>
+      <ModalTitle>{editingGroup ? "Edit Group" : "New Group"}</ModalTitle>
       <Input
         type="text"
         placeholder="Group name"
@@ -32,7 +44,7 @@ export default function CreateGroup({ onCancel, onSubmit }: Props) {
       <ModalButtons>
         <CancelButton onClick={onCancel}>Cancel</CancelButton>
         <CreateButton onClick={() => onSubmit(newGroupName, newGroupColor)}>
-          Create
+          {editingGroup ? "Save" : "Create"}
         </CreateButton>
       </ModalButtons>
     </>

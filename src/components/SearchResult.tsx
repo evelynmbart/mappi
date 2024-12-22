@@ -3,10 +3,11 @@ import { Place } from "../types";
 
 interface Props {
   place: Place;
-  onAdd: (place: Place) => void;
+  onAdd?: (place: Place) => void;
+  onRemove?: (place: Place) => void;
 }
 
-export function SearchResult({ place, onAdd }: Props) {
+export function SearchResult({ place, onAdd, onRemove }: Props) {
   return (
     <Container>
       <Top>
@@ -22,7 +23,8 @@ export function SearchResult({ place, onAdd }: Props) {
         {place.photos?.[0] && <Photo src={place.photos[0].getUrl()} />}
       </Top>
       <Bottom>
-        <Button onClick={() => onAdd(place)}>Add to group</Button>
+        {onAdd && <Button onClick={() => onAdd(place)}>Add to group</Button>}
+        {onRemove && <Button onClick={() => onRemove(place)}>Remove</Button>}
         <a
           href={`https://www.google.com/maps/place/?q=place_id:${place.place_id}`}
           target="_blank"

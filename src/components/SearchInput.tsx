@@ -34,11 +34,7 @@ export const SearchInput = ({ searchCircle }: Props) => {
 
   return (
     <InputWrapper onSubmit={handleSearch}>
-      <Input
-        ref={inputRef}
-        type="text"
-        placeholder="Search keyword (optional)..."
-      />
+      <Input ref={inputRef} type="text" placeholder="Search Google Maps" />
 
       <SearchButton type="submit">
         <FiSearch size={18} />

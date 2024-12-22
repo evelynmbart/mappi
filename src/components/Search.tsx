@@ -10,12 +10,10 @@ interface Props {
 }
 
 export function Search({ circle }: Props) {
-  const { groups, setGroups, searchResults, setSearchResults } =
-    useContext(GroupContext);
+  const { groups, setGroups, searchResults } = useContext(GroupContext);
   const [selectedGroupId, setSelectedGroupId] = useState("");
   const [isScrolled, setIsScrolled] = useState(false);
   const resultsRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
 
   const handleAddPlace = (place: Place) => {
     if (!selectedGroupId) return;

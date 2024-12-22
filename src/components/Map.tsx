@@ -8,13 +8,14 @@ import {
 import { useContext, useRef } from "react";
 import { DEFAULT_LOCATION, DEFAULT_RADIUS_METERS } from "../constants/defaults";
 import { GroupContext } from "../contexts/GroupContext";
+import { Tab } from "../types";
 import Controls from "./Controls";
 import MarkerGroup from "./MarkerGroup";
 
 const LIBRARIES: Libraries = ["places"];
 
 const Map = () => {
-  const { groups, searchResults } = useContext(GroupContext);
+  const { groups, searchResults, tab } = useContext(GroupContext);
 
   const circleRef = useRef<google.maps.Circle>(null);
   const handleCircleLoad = (circle: google.maps.Circle) => {
@@ -61,13 +62,14 @@ const Map = () => {
             (group) =>
               group.visible && <MarkerGroup key={group.id} group={group} />
           )}
-          {searchResults.map((place) => (
-            <Marker
-              key={place.place_id}
-              position={place.geometry.location}
-              title={place.name}
-            />
-          ))}
+          {tab === Tab.Search &&
+            searchResults.map((place) => (
+              <Marker
+                key={place.place_id}
+                position={place.geometry.location}
+                title={place.name}
+              />
+            ))}
         </GoogleMap>
       </div>
     </LoadScript>

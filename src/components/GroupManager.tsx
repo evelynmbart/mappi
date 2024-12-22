@@ -1,4 +1,6 @@
 import { useContext, useState } from "react";
+import { FiEdit2, FiTrash2 } from "react-icons/fi";
+import { MdCheckBox, MdCheckBoxOutlineBlank } from "react-icons/md";
 import Modal from "react-modal";
 import styled from "styled-components";
 import { v4 as uuidv4 } from "uuid";
@@ -13,24 +15,10 @@ interface Props {
 Modal.setAppElement("#root");
 const AnyModal = Modal as any;
 
-const DEFAULT_GROUP_COLOR = "#5aa1e8";
-
 const GroupManager = ({ searchCircle }: Props) => {
-  const { groups, setGroups } = useContext(GroupContext);
+  const { groups, setGroups, toggleGroupVisibility, goToGroup } =
+    useContext(GroupContext);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const removePlaceFromGroup = (groupId: string, placeId: string) => {
-    setGroups(
-      groups.map((group) =>
-        group.id === groupId
-          ? {
-              ...group,
-              places: group.places.filter((place) => place.place_id !== placeId)
-            }
-          : group
-      )
-    );
-  };
 
   const handleCreateGroup = (name: string, color: string) => {
     if (name.trim() === "") return;
@@ -45,6 +33,10 @@ const GroupManager = ({ searchCircle }: Props) => {
     setIsModalOpen(false);
   };
 
+  const handleRemoveGroup = (groupId: string) => {
+    setGroups(groups.filter((group) => group.id !== groupId));
+  };
+
   return (
     <Container>
       <TopSection>
@@ -55,37 +47,45 @@ const GroupManager = ({ searchCircle }: Props) => {
           Your Groups
           <AddButton onClick={() => setIsModalOpen(true)}>+ Group</AddButton>
         </Header>
-        <ul>
+        <GroupList>
           {groups.map((group) => (
-            <li key={group.id}>
-              <span
-                style={{
-                  color: group.color,
-                  fontWeight: "bold",
-                  marginLeft: "5px"
+            <GroupItem
+              key={group.id}
+              onClick={() => goToGroup(group.id)}
+              color={group.color}
+            >
+              <div
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleGroupVisibility(group.id);
                 }}
               >
-                {group.name}
-              </span>
-
-              {/* List places in the group */}
-              <ul>
-                {group.places.map((place) => (
-                  <li key={place.place_id}>
-                    {place.name}
-                    <button
-                      onClick={() =>
-                        removePlaceFromGroup(group.id, place.place_id)
-                      }
-                    >
-                      Remove
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </li>
+                {group.visible ? (
+                  <MdCheckBox size={24} />
+                ) : (
+                  <MdCheckBoxOutlineBlank size={24} />
+                )}
+              </div>
+              <GroupText>
+                <GroupName>{group.name}</GroupName>
+                <PlacesCount>{group.places.length} places</PlacesCount>
+              </GroupText>
+              <GroupActions>
+                <ActionButton>
+                  <FiEdit2 size={18} />
+                </ActionButton>
+                <ActionButton
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleRemoveGroup(group.id);
+                  }}
+                >
+                  <FiTrash2 size={18} />
+                </ActionButton>
+              </GroupActions>
+            </GroupItem>
           ))}
-        </ul>
+        </GroupList>
 
         <AnyModal
           isOpen={isModalOpen}
@@ -136,7 +136,7 @@ const TopSection = styled.div`
 `;
 
 const BottomSection = styled.div`
-  padding: 16px;
+  padding: 16px 0;
 `;
 
 const Header = styled.div`
@@ -144,6 +144,68 @@ const Header = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
+  margin-bottom: 16px;
+  padding: 0 16px;
+`;
+
+const GroupList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+`;
+
+const GroupItem = styled.div<{ color: string }>`
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 8px 16px;
+  background: white;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  color: ${(props) => props.color};
+
+  &:hover {
+    background-color: #f8f9fa;
+  }
+`;
+
+const GroupText = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+`;
+
+const GroupName = styled.span`
+  font-weight: 500;
+`;
+
+const PlacesCount = styled.span`
+  font-size: 0.8em;
+  font-weight: 500;
+  color: #666;
+`;
+
+const GroupActions = styled.div`
+  display: flex;
+  gap: 8px;
+`;
+
+const ActionButton = styled.button`
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  color: #666;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    background: #f0f0f0;
+    color: #333;
+  }
 `;
 
 const AddButton = styled.button`

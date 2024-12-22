@@ -11,6 +11,9 @@ import { Group, Place, Tab } from "../types";
 interface GroupContextType {
   groups: Group[];
   setGroups: Dispatch<SetStateAction<Group[]>>;
+  toggleGroupVisibility: (groupId: string) => void;
+  selectedGroupID: string | null;
+  goToGroup: (groupId: string) => void;
   searchQuery: string;
   setSearchQuery: Dispatch<SetStateAction<string>>;
   searchResults: Place[];
@@ -25,6 +28,9 @@ interface GroupContextType {
 export const GroupContext = createContext<GroupContextType>({
   groups: [],
   setGroups: () => {},
+  toggleGroupVisibility: () => {},
+  selectedGroupID: null,
+  goToGroup: () => {},
   searchQuery: "",
   setSearchQuery: () => {},
   searchResults: [],
@@ -38,10 +44,24 @@ export const GroupContext = createContext<GroupContextType>({
 
 export const GroupProvider = ({ children }: { children: ReactNode }) => {
   const [groups, setGroups] = useState<Group[]>([]);
+  const [selectedGroupID, setSelectedGroupID] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [searchResults, setSearchResults] = useState<Place[]>([]);
   const [tab, setTab] = useState<Tab>(Tab.Search);
   const [isSearching, setIsSearching] = useState<boolean>(false);
+
+  const toggleGroupVisibility = (groupId: string) => {
+    setGroups(
+      groups.map((group) =>
+        group.id === groupId ? { ...group, visible: !group.visible } : group
+      )
+    );
+  };
+
+  const goToGroup = (groupId: string) => {
+    setTab(Tab.Group);
+    setSelectedGroupID(groupId);
+  };
 
   const search = async (query: string, searchCircle: google.maps.Circle) => {
     setIsSearching(true);
@@ -77,6 +97,9 @@ export const GroupProvider = ({ children }: { children: ReactNode }) => {
       value={{
         groups,
         setGroups,
+        toggleGroupVisibility,
+        selectedGroupID,
+        goToGroup,
         searchQuery,
         setSearchQuery,
         searchResults,
