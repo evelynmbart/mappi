@@ -3,9 +3,8 @@ import {
   Dispatch,
   ReactNode,
   SetStateAction,
-  useState
+  useState,
 } from "react";
-import { DEFAULT_LOCATION, DEFAULT_RADIUS_METERS } from "../constants/defaults";
 import { Group, Place, Tab } from "../types";
 
 interface GroupContextType {
@@ -39,7 +38,7 @@ export const GroupContext = createContext<GroupContextType>({
   setTab: () => {},
   search: async () => {},
   isSearching: false,
-  setIsSearching: () => {}
+  setIsSearching: () => {},
 });
 
 export const GroupProvider = ({ children }: { children: ReactNode }) => {
@@ -49,8 +48,8 @@ export const GroupProvider = ({ children }: { children: ReactNode }) => {
       name: "Default",
       color: "#1a73e8",
       places: [],
-      visible: true
-    }
+      visible: true,
+    },
   ]);
   const [selectedGroupID, setSelectedGroupID] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -81,21 +80,56 @@ export const GroupProvider = ({ children }: { children: ReactNode }) => {
         document.createElement("div")
       );
 
+      const center = searchCircle?.getCenter();
+      const radius = searchCircle?.getRadius();
+
+      if (!center || !radius) {
+        throw new Error("Search circle is not properly defined");
+      }
+
       const request: google.maps.places.TextSearchRequest = {
-        location: searchCircle?.getCenter() ?? DEFAULT_LOCATION,
-        radius: searchCircle?.getRadius() ?? DEFAULT_RADIUS_METERS,
-        query: query
+        location: center,
+        radius: radius,
+        query: query,
       };
 
       service.textSearch(request, (results, status) => {
-        if (status === window.google.maps.places.PlacesServiceStatus.OK) {
-          setSearchResults(results as unknown as Place[]);
+        if (
+          status === window.google.maps.places.PlacesServiceStatus.OK &&
+          results
+        ) {
+          // Filter results to only include places within the circle
+          const filteredResults = results.filter((place) => {
+            if (!place.geometry?.location) return false;
+
+            const placeLatLng = new google.maps.LatLng(
+              place.geometry.location.lat(),
+              place.geometry.location.lng()
+            );
+
+            const centerLatLng = new google.maps.LatLng(
+              center.lat(),
+              center.lng()
+            );
+
+            const distance =
+              google.maps.geometry.spherical.computeDistanceBetween(
+                placeLatLng,
+                centerLatLng
+              );
+
+            return distance <= radius;
+          });
+
+          setSearchResults(filteredResults as unknown as Place[]);
         } else {
           console.error("PlacesServiceStatus:", status);
+          setSearchResults([]);
         }
       });
     } catch (error) {
       console.error("Geocoding failed:", error);
+      setSearchResults([]);
     }
     setIsSearching(false);
   };
@@ -116,7 +150,7 @@ export const GroupProvider = ({ children }: { children: ReactNode }) => {
         setTab,
         search,
         isSearching,
-        setIsSearching
+        setIsSearching,
       }}
     >
       {children}
